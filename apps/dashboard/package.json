@@ -1,0 +1,34 @@
+{
+  "name": "dashboard",
+  "version": "0.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "dev": "expo start --web",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~57.0.13",
+    "@odyssey/api-client": "workspace:*",
+    "@odyssey/shared": "workspace:*",
+    "@odyssey/types": "workspace:*",
+    "@tanstack/react-query": "^5.0.0",
+    "expo": "~57.0.16",
+    "expo-constants": "~57.0.14",
+    "expo-linking": "~57.0.7",
+    "expo-router": "~57.0.16",
+    "expo-status-bar": "~57.0.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.2",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-reanimated": "~4.5.1",
+    "react-native-safe-area-context": "~5.6.2",
+    "react-native-screens": "~4.26.0",
+    "react-native-web": "~0.21.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.0",
+    "typescript": "^5.9.0"
+  }
+}

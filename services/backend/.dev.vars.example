@@ -1,0 +1,2 @@
+# Copy to .dev.vars for local development with `wrangler dev`.
+DATABASE_URL=postgres://odyssey:odyssey@localhost:5432/odyssey

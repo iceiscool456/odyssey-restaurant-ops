@@ -1,0 +1,8 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "odyssey-backend",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-01",
+  // nodejs_compat is required by the postgres.js driver.
+  "compatibility_flags": ["nodejs_compat"]
+}
