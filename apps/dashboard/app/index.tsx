@@ -1,34 +1,82 @@
+import { ScrollView, View } from 'react-native';
+import { useGetHomeSummary, useGetSettings, useListOrders } from '@odyssey/api-client';
 import { Badge, Card, Typography, color, formatCurrency, space } from '@odyssey/shared';
-import { useListMenuItems } from '@odyssey/api-client';
-import { ActivityIndicator, View } from 'react-native';
 import { AppShell } from '../components/AppShell';
+import { QueryState } from '../components/QueryState';
+
+function Kpi({ label, value }: { label: string; value: string }) {
+  return (
+    <Card style={{ flex: 1, minWidth: 160 }}>
+      <Typography variant="label">{label}</Typography>
+      <Typography variant="title">{value}</Typography>
+    </Card>
+  );
+}
 
 export default function Home() {
-  const query = useListMenuItems();
-  const items = query.data?.status === 200 ? query.data.data : [];
+  const summaryQuery = useGetHomeSummary();
+  const settingsQuery = useGetSettings();
+  const pendingQuery = useListOrders({ status: 'pending' });
+
+  const summary = summaryQuery.data?.status === 200 ? summaryQuery.data.data : undefined;
+  const settings = settingsQuery.data?.status === 200 ? settingsQuery.data.data : undefined;
+  const pending = pendingQuery.data?.status === 200 ? pendingQuery.data.data : [];
 
   return (
     <AppShell title="Tonight’s board">
-      <Typography variant="body" color={color.inkMuted}>
-        Live menu loaded through the generated contract.
-      </Typography>
-      {query.isLoading ? <ActivityIndicator color={color.accent} /> : null}
-      {query.error ? (
-        <Typography color={color.danger}>Could not load menu. Is the API running?</Typography>
-      ) : null}
-      <View style={{ gap: space[3], maxWidth: 560 }}>
-        {items.map((item) => (
-          <Card key={item.id} padded>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space[3] }}>
-              <View style={{ flex: 1, gap: space[1] }}>
-                <Typography variant="heading">{item.name}</Typography>
-                <Typography variant="caption">{formatCurrency(item.priceCents)}</Typography>
+      <ScrollView contentContainerStyle={{ gap: space[5], paddingBottom: space[8] }}>
+        <QueryState isLoading={summaryQuery.isLoading} error={summaryQuery.error} isEmpty={!summary}>
+          {summary ? (
+            <>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[4] }}>
+                <Kpi label="Tickets" value={String(summary.totalOrders)} />
+                <Kpi label="Revenue" value={formatCurrency(summary.revenueCents)} />
+                <Kpi label="Pending" value={String(summary.pendingOrders)} />
               </View>
-              <Badge tone={item.isAvailable ? 'ready' : 'cancelled'} label={item.isAvailable ? 'Available' : 'Unavailable'} />
-            </View>
-          </Card>
-        ))}
-      </View>
+              {settings ? (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2], alignItems: 'center' }}>
+                  <Badge
+                    tone={settings.serviceAvailable ? 'ready' : 'cancelled'}
+                    label={settings.serviceAvailable ? 'Service open' : 'Service closed'}
+                  />
+                  <Badge tone={settings.autoAccept ? 'accepted' : 'info'} label={settings.autoAccept ? 'Auto-accept on' : 'Manual accept'} />
+                  <Typography variant="caption">{settings.prepTimeMinutes} min prep</Typography>
+                </View>
+              ) : null}
+              <Card>
+                <View style={{ gap: space[3] }}>
+                  <Typography variant="heading">Popular items</Typography>
+                  {summary.popularItems.length === 0 ? (
+                    <Typography variant="caption">No completed tickets yet.</Typography>
+                  ) : (
+                    summary.popularItems.map((item) => (
+                      <View key={item.menuItemId} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Typography variant="body">{item.name}</Typography>
+                        <Typography variant="mono">{item.quantity} sold</Typography>
+                      </View>
+                    ))
+                  )}
+                </View>
+              </Card>
+              <Card>
+                <View style={{ gap: space[3] }}>
+                  <Typography variant="heading">Pending well</Typography>
+                  {pendingQuery.isLoading ? <Typography variant="caption" color={color.inkMuted}>Loading…</Typography> : null}
+                  {pending.length === 0 ? (
+                    <Typography variant="caption">No tickets waiting on accept.</Typography>
+                  ) : (
+                    pending.map((order) => (
+                      <Typography key={order.id} variant="body">
+                        {formatCurrency(order.totalCents)} · {new Date(order.createdAt).toLocaleTimeString()}
+                      </Typography>
+                    ))
+                  )}
+                </View>
+              </Card>
+            </>
+          ) : null}
+        </QueryState>
+      </ScrollView>
     </AppShell>
   );
 }

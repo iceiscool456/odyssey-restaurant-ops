@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Modal as RnModal, Pressable, View } from 'react-native';
+import { Modal as RnModal, Pressable, ScrollView, View } from 'react-native';
 import { color, layout, radius, shadow, space } from '../tokens';
 import { Button } from './Button';
 import { Typography } from './Typography';
@@ -70,6 +70,7 @@ export function Drawer({
           style={{
             width: layout.drawer,
             maxWidth: '90%',
+            height: '100%',
             backgroundColor: color.surface,
             padding: space[5],
             ...shadow.lg,
@@ -77,7 +78,9 @@ export function Drawer({
           }}
         >
           <Typography variant="heading">{title}</Typography>
-          {children}
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: space[4], paddingBottom: space[4] }}>
+            {children}
+          </ScrollView>
           <Button variant="secondary" label="Close drawer" onPress={onClose} />
         </View>
       </View>

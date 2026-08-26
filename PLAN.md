@@ -51,7 +51,7 @@ Milestone-driven roadmap for the Odyssey assignment. One branch per milestone, m
   inputs, select menu, cards, table/empty table, badges, feedback, skeleton, modal, drawer, and toast.
   Home still uses the tokenized shell; menu load error state renders when the API is down.
 
-## M5 — Dashboard pages wired end-to-end
+## M5 — Dashboard pages wired end-to-end ✅
 
 Build order: Menu → Orders → CRM → Settings → Home (Home consumes everything else).
 
@@ -62,6 +62,7 @@ Build order: Menu → Orders → CRM → Settings → Home (Home consumes everyt
 - Home: KPIs — total orders, revenue, pending orders, popular items.
 - All data via generated hooks; edit/create in modals/drawers; skeleton/empty/error states and toasts on mutations.
 - **Exit:** every assessment flow works clicking through the real UI against the real backend.
+- Verified: Metro compiles Home/Menu/Orders/CRM/Settings; live API covers 86 → rejected ticket, valid create with server totals, accept action, settings, and Home KPIs. Browser click-through was blocked in this session (browser tool offline); run `pnpm dev:dashboard` + `pnpm dev:backend` and click the sidebar to confirm.
 
 ## M6 — Polish, frontend tests, docs
 

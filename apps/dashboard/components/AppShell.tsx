@@ -5,10 +5,27 @@ import { View } from 'react-native';
 
 const items = [
   { path: '/', label: 'Home' },
+  { path: '/menu', label: 'Menu' },
+  { path: '/orders', label: 'Orders' },
+  { path: '/crm', label: 'CRM' },
+  { path: '/settings', label: 'Settings' },
   { path: '/ui-library', label: 'UI library' },
 ];
 
-export function AppShell({ title, children }: { title: string; children: ReactNode }) {
+function isActive(pathname: string, path: string) {
+  if (path === '/') return pathname === '/';
+  return pathname === path || pathname.startsWith(`${path}/`);
+}
+
+export function AppShell({
+  title,
+  actions,
+  children,
+}: {
+  title: string;
+  actions?: ReactNode;
+  children: ReactNode;
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -31,15 +48,20 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
             <NavItem
               key={item.path}
               label={item.label}
-              active={pathname === item.path}
+              active={isActive(pathname, item.path)}
               onPress={() => router.push(item.path as Href)}
             />
           ))}
         </View>
       </View>
-      <View style={{ flex: 1, padding: space[6], gap: space[5] }}>
-        <Typography variant="title">{title}</Typography>
-        {children}
+      <View style={{ flex: 1, padding: space[6], gap: space[5], minWidth: 0 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space[4] }}>
+          <Typography variant="title" style={{ flex: 1 }}>
+            {title}
+          </Typography>
+          {actions}
+        </View>
+        <View style={{ flex: 1, minHeight: 0 }}>{children}</View>
       </View>
     </View>
   );

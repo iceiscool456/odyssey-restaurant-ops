@@ -21,7 +21,7 @@ export const layout = {
   controlMd: 40,
   controlLg: 48,
   modal: 480,
-  drawer: 328,
+  drawer: 420,
   toastMin: 240,
   tableMin: 640,
   selectMenuOffset: 64,
