@@ -1,5 +1,7 @@
-import { Button, Typography, space } from '@odyssey/shared';
 import { View } from 'react-native';
+import { space } from '../tokens';
+import { Button } from './Button';
+import { Typography } from './Typography';
 
 export function Toggle({
   label,

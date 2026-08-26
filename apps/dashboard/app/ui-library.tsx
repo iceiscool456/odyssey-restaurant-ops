@@ -15,6 +15,7 @@ import {
   Skeleton,
   SkeletonBlock,
   Table,
+  Toggle,
   Typography,
   border,
   color,
@@ -187,6 +188,8 @@ export default function UiLibrary() {
               onChange={() => undefined}
               options={[{ value: 'pending', label: 'Pending' }]}
             />
+            <Toggle label="Auto-accept" value={false} onChange={() => undefined} />
+            <Toggle label="Service available" value onChange={() => undefined} />
           </View>
         </Section>
 

@@ -1,13 +1,13 @@
 import { useRouter } from 'expo-router';
 import { ScrollView, View } from 'react-native';
-import { useGetHomeSummary, useGetSettings, useListCustomers, useListOrders } from '@odyssey/api-client';
-import { Badge, Card, ListRow, Typography, color, formatCurrency, space } from '@odyssey/shared';
+import { Badge, Card, ListRow, Typography, color, formatCurrency, layout, space } from '@odyssey/shared';
 import { AppShell } from '../components/AppShell';
 import { QueryState } from '../components/QueryState';
+import { useHomeScreen } from '../lib/use-home-screen';
 
 function Kpi({ label, value }: { label: string; value: string }) {
   return (
-    <Card style={{ flex: 1, minWidth: 160 }}>
+    <Card style={{ flex: 1, minWidth: layout.kpiMin }}>
       <Typography variant="label">{label}</Typography>
       <Typography variant="title">{value}</Typography>
     </Card>
@@ -16,16 +16,7 @@ function Kpi({ label, value }: { label: string; value: string }) {
 
 export default function Home() {
   const router = useRouter();
-  const summaryQuery = useGetHomeSummary();
-  const settingsQuery = useGetSettings();
-  const customersQuery = useListCustomers();
-  const pendingQuery = useListOrders({ status: 'pending' });
-
-  const summary = summaryQuery.data?.status === 200 ? summaryQuery.data.data : undefined;
-  const settings = settingsQuery.data?.status === 200 ? settingsQuery.data.data : undefined;
-  const pending = pendingQuery.data?.status === 200 ? pendingQuery.data.data : [];
-  const customers = customersQuery.data?.status === 200 ? customersQuery.data.data : [];
-  const customersById = new Map(customers.map((customer) => [customer.id, customer]));
+  const { summaryQuery, pendingQuery, summary, settings, pending, customersById } = useHomeScreen();
 
   return (
     <AppShell title="Tonight’s board">
@@ -44,7 +35,10 @@ export default function Home() {
                     tone={settings.serviceAvailable ? 'ready' : 'cancelled'}
                     label={settings.serviceAvailable ? 'Service open' : 'Service closed'}
                   />
-                  <Badge tone={settings.autoAccept ? 'accepted' : 'info'} label={settings.autoAccept ? 'Auto-accept on' : 'Manual accept'} />
+                  <Badge
+                    tone={settings.autoAccept ? 'accepted' : 'info'}
+                    label={settings.autoAccept ? 'Auto-accept on' : 'Manual accept'}
+                  />
                   <Typography variant="caption">{settings.prepTimeMinutes} min prep</Typography>
                 </View>
               ) : null}

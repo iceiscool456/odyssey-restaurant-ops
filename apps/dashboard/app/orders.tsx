@@ -1,15 +1,4 @@
-import { useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import {
-  type OrderAction,
-  OrderStatus,
-  useApplyOrderAction,
-  useCreateOrder,
-  useGetOrder,
-  useListCustomers,
-  useListMenuItems,
-  useListOrders,
-} from '@odyssey/api-client';
 import {
   Badge,
   Button,
@@ -22,112 +11,39 @@ import {
   color,
   formatCurrency,
   space,
-  statusTone,
-  useToast,
-  type StatusTone,
 } from '@odyssey/shared';
 import { AppShell } from '../components/AppShell';
 import { QueryState } from '../components/QueryState';
-import { errorMessage, useInvalidateOps } from '../lib/api';
-import { validateTicket } from '../lib/forms';
-import { ORDER_ACTION_UI, ticketActionButtons, ticketIsClosed } from '../lib/order-actions';
-
-const STATUS_FILTERS = [
-  { value: 'all', label: 'All tickets' },
-  ...Object.values(OrderStatus).map((status) => ({ value: status, label: statusTone[status].label })),
-];
+import { orderBadgeTone } from '../lib/order-badge';
+import { ticketActionButtons, ticketIsClosed } from '../lib/order-actions';
+import { STATUS_FILTERS, useOrdersScreen } from '../lib/use-orders-screen';
 
 export default function OrdersPage() {
-  const toast = useToast();
-  const invalidate = useInvalidateOps();
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [customerId, setCustomerId] = useState('');
-  const [notes, setNotes] = useState('');
-  const [quantities, setQuantities] = useState<Record<string, number>>({});
-
-  const ordersQuery = useListOrders(statusFilter === 'all' ? undefined : { status: statusFilter as (typeof OrderStatus)[keyof typeof OrderStatus] });
-  const customersQuery = useListCustomers();
-  const itemsQuery = useListMenuItems();
-  const detailQuery = useGetOrder(selectedId ?? '', { query: { enabled: Boolean(selectedId) } });
-  const createOrder = useCreateOrder();
-  const applyAction = useApplyOrderAction();
-
-  const orders = ordersQuery.data?.status === 200 ? ordersQuery.data.data : [];
-  const customers = customersQuery.data?.status === 200 ? customersQuery.data.data : [];
-  const items = itemsQuery.data?.status === 200 ? itemsQuery.data.data : [];
-  const detail = detailQuery.data?.status === 200 ? detailQuery.data.data : undefined;
-
-  const customersById = useMemo(() => new Map(customers.map((customer) => [customer.id, customer])), [customers]);
-
-  function bump(itemId: string, delta: number) {
-    setQuantities((current) => {
-      const next = Math.max(0, (current[itemId] ?? 0) + delta);
-      return { ...current, [itemId]: next };
-    });
-  }
-
-  async function submitOrder() {
-    const parsed = validateTicket({ customerId, quantities });
-    if (!parsed.ok) {
-      toast.push(parsed.message, 'warning');
-      return;
-    }
-    try {
-      const result = await createOrder.mutateAsync({
-        data: { customerId: parsed.value.customerId, notes: notes.trim() || undefined, items: parsed.value.items },
-      });
-      if (result.status !== 201) {
-        toast.push(errorMessage(result.data), 'error');
-        return;
-      }
-      await invalidate.orders();
-      toast.push(`Ticket in — ${formatCurrency(result.data.totalCents)}`, 'success');
-      setCreateOpen(false);
-      setNotes('');
-      setQuantities({});
-      setSelectedId(result.data.id);
-    } catch (error) {
-      toast.push(errorMessage(error), 'error');
-    }
-  }
-
-  async function runAction(action: OrderAction) {
-    if (!selectedId) return;
-    try {
-      await applyAction.mutateAsync({ id: selectedId, data: { action } });
-      await invalidate.orders();
-      await detailQuery.refetch();
-      toast.push(`${ORDER_ACTION_UI[action].label} sent`, action === 'cancel' ? 'warning' : 'success');
-    } catch (error) {
-      toast.push(errorMessage(error), 'error');
-    }
-  }
+  const screen = useOrdersScreen();
 
   return (
-    <AppShell title="Orders" actions={<Button label="New ticket" onPress={() => setCreateOpen(true)} />}>
+    <AppShell title="Orders" actions={<Button label="New ticket" onPress={() => screen.setCreateOpen(true)} />}>
       <View style={{ flex: 1, gap: space[4] }}>
-        <Select label="Status" value={statusFilter} options={STATUS_FILTERS} onChange={setStatusFilter} />
+        <Select label="Status" value={screen.statusFilter} options={STATUS_FILTERS} onChange={screen.setStatusFilter} />
         <ScrollView contentContainerStyle={{ gap: space[3], paddingBottom: space[8] }}>
           <QueryState
-            isLoading={ordersQuery.isLoading}
-            error={ordersQuery.error}
-            isEmpty={orders.length === 0}
+            isLoading={screen.ordersQuery.isLoading}
+            error={screen.ordersQuery.error}
+            isEmpty={screen.orders.length === 0}
             emptyTitle="No tickets in this well"
             emptyBody="Fire a ticket or clear the status filter."
           >
-            {orders.map((order) => {
-              const guest = customersById.get(order.customerId);
+            {screen.orders.map((order) => {
+              const guest = screen.customersById.get(order.customerId);
               return (
                 <Card key={order.id} padded={false}>
                   <ListRow
                     title={guest?.name ?? 'Guest'}
                     meta={`${formatCurrency(order.totalCents)} · ${new Date(order.createdAt).toLocaleTimeString()}`}
-                    onPress={() => setSelectedId(order.id)}
+                    onPress={() => screen.setSelectedId(order.id)}
                   />
                   <View style={{ paddingHorizontal: space[3], paddingBottom: space[3] }}>
-                    <Badge tone={order.status as StatusTone} />
+                    <Badge tone={orderBadgeTone[order.status]} />
                   </View>
                 </Card>
               );
@@ -136,15 +52,15 @@ export default function OrdersPage() {
         </ScrollView>
       </View>
 
-      <Drawer open={Boolean(selectedId)} title="Ticket" onClose={() => setSelectedId(null)}>
-        <QueryState isLoading={detailQuery.isLoading} error={detailQuery.error} isEmpty={!detail}>
-          {detail ? (
+      <Drawer open={Boolean(screen.selectedId)} title="Ticket" onClose={() => screen.setSelectedId(null)}>
+        <QueryState isLoading={screen.detailQuery.isLoading} error={screen.detailQuery.error} isEmpty={!screen.detail}>
+          {screen.detail ? (
             <View style={{ gap: space[4] }}>
-              <Badge tone={detail.status as StatusTone} />
-              <Typography variant="heading">{detail.customer.name}</Typography>
-              <Typography variant="caption">{detail.customer.email}</Typography>
-              {detail.notes ? <Typography variant="body">{detail.notes}</Typography> : null}
-              {detail.items.map((line) => (
+              <Badge tone={orderBadgeTone[screen.detail.status]} />
+              <Typography variant="heading">{screen.detail.customer.name}</Typography>
+              <Typography variant="caption">{screen.detail.customer.email}</Typography>
+              {screen.detail.notes ? <Typography variant="body">{screen.detail.notes}</Typography> : null}
+              {screen.detail.items.map((line) => (
                 <View key={line.id} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: space[3] }}>
                   <Typography variant="body">
                     {line.quantity}× {line.nameSnapshot}
@@ -153,22 +69,22 @@ export default function OrdersPage() {
                 </View>
               ))}
               <Typography variant="caption">
-                Subtotal {formatCurrency(detail.subtotalCents)} · tax {formatCurrency(detail.taxCents)}
+                Subtotal {formatCurrency(screen.detail.subtotalCents)} · tax {formatCurrency(screen.detail.taxCents)}
               </Typography>
-              <Typography variant="heading">{formatCurrency(detail.totalCents)}</Typography>
+              <Typography variant="heading">{formatCurrency(screen.detail.totalCents)}</Typography>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2] }}>
-                {ticketActionButtons(detail.availableActions).map((button) => (
+                {ticketActionButtons(screen.detail.availableActions).map((button) => (
                   <Button
                     key={button.action}
                     size="sm"
                     variant={button.variant}
                     label={button.label}
-                    loading={applyAction.isPending}
-                    onPress={() => void runAction(button.action)}
+                    loading={screen.applyAction.isPending}
+                    onPress={() => void screen.runAction(button.action)}
                   />
                 ))}
               </View>
-              {ticketIsClosed(detail.availableActions) ? (
+              {ticketIsClosed(screen.detail.availableActions) ? (
                 <Typography variant="caption">This ticket is closed — no further actions.</Typography>
               ) : null}
             </View>
@@ -176,25 +92,18 @@ export default function OrdersPage() {
         </QueryState>
       </Drawer>
 
-      <Drawer
-        open={createOpen}
-        title="Fire a ticket"
-        onClose={() => {
-          setCreateOpen(false);
-          setQuantities({});
-        }}
-      >
+      <Drawer open={screen.createOpen} title="Fire a ticket" onClose={screen.closeCreate}>
         <View style={{ gap: space[4] }}>
           <Select
             label="Guest"
-            value={customerId}
-            onChange={setCustomerId}
-            options={customers.map((customer) => ({ value: customer.id, label: customer.name }))}
+            value={screen.customerId}
+            onChange={screen.setCustomerId}
+            options={screen.customers.map((customer) => ({ value: customer.id, label: customer.name }))}
             placeholder="Pick a guest"
           />
-          <Input label="Notes" value={notes} onChangeText={setNotes} placeholder="Window table, extra lemon" />
+          <Input label="Notes" value={screen.notes} onChangeText={screen.setNotes} placeholder="Window table, extra lemon" />
           <Typography variant="label">Items</Typography>
-          {items.map((item) => (
+          {screen.items.map((item) => (
             <View key={item.id} style={{ gap: space[1] }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space[2] }}>
                 <View style={{ flex: 1 }}>
@@ -205,9 +114,9 @@ export default function OrdersPage() {
                   </Typography>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: space[2] }}>
-                  <Button size="sm" variant="secondary" label="−" onPress={() => bump(item.id, -1)} />
-                  <Typography variant="mono">{quantities[item.id] ?? 0}</Typography>
-                  <Button size="sm" variant="secondary" label="+" onPress={() => bump(item.id, 1)} />
+                  <Button size="sm" variant="secondary" label="−" onPress={() => screen.bump(item.id, -1)} />
+                  <Typography variant="mono">{screen.quantities[item.id] ?? 0}</Typography>
+                  <Button size="sm" variant="secondary" label="+" onPress={() => screen.bump(item.id, 1)} />
                 </View>
               </View>
               {!item.isAvailable ? (
@@ -217,7 +126,7 @@ export default function OrdersPage() {
               ) : null}
             </View>
           ))}
-          <Button label="Send ticket" loading={createOrder.isPending} onPress={() => void submitOrder()} />
+          <Button label="Send ticket" loading={screen.createOrder.isPending} onPress={() => void screen.submitOrder()} />
         </View>
       </Drawer>
     </AppShell>

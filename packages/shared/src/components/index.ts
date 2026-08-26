@@ -11,4 +11,5 @@ export { Select } from './Select';
 export { Skeleton, SkeletonBlock } from './Skeleton';
 export { Table, type TableColumn } from './Table';
 export { ToastProvider, useToast } from './Toast';
+export { Toggle } from './Toggle';
 export { Typography } from './Typography';

@@ -26,4 +26,5 @@ export const layout = {
   tableMin: 640,
   selectMenuOffset: 64,
   columns: 12,
+  kpiMin: 160,
 } as const;
