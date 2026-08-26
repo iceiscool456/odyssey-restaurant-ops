@@ -6,8 +6,13 @@ import { AppShell } from '../components/AppShell';
 import { QueryState } from '../components/QueryState';
 import { Toggle } from '../components/Toggle';
 import { errorMessage, useInvalidateOps } from '../lib/api';
+import { validatePrepTime } from '../lib/forms';
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+
+function weekdayLabel(day: (typeof DAYS)[number]) {
+  return day.charAt(0).toUpperCase() + day.slice(1);
+}
 
 const emptyHours: OpeningHours = {
   monday: { open: '11:00', close: '22:00' },
@@ -51,14 +56,14 @@ export default function SettingsPage() {
   }, [settings]);
 
   async function save() {
-    const prepTimeMinutes = Number(prepTime);
-    if (!Number.isInteger(prepTimeMinutes) || prepTimeMinutes < 0) {
-      toast.push('Prep time must be zero or more minutes', 'warning');
+    const parsed = validatePrepTime(prepTime);
+    if (!parsed.ok) {
+      toast.push(parsed.message, 'warning');
       return;
     }
     try {
       await update.mutateAsync({
-        data: { prepTimeMinutes, autoAccept, serviceAvailable, openingHours: hours },
+        data: { prepTimeMinutes: parsed.value, autoAccept, serviceAvailable, openingHours: hours },
       });
       await invalidate.settings();
       toast.push('Settings saved', 'success');
@@ -105,7 +110,7 @@ export default function SettingsPage() {
                 return (
                   <View key={day} style={{ gap: space[2] }}>
                     <Toggle
-                      label={day}
+                      label={weekdayLabel(day)}
                       value={Boolean(slot)}
                       onChange={(open) =>
                         setHours((current) => ({

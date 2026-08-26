@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import {
-  OrderAction,
+  type OrderAction,
   OrderStatus,
   useApplyOrderAction,
   useCreateOrder,
@@ -9,7 +9,6 @@ import {
   useListCustomers,
   useListMenuItems,
   useListOrders,
-  type OrderAction as OrderActionValue,
 } from '@odyssey/api-client';
 import {
   Badge,
@@ -30,19 +29,13 @@ import {
 import { AppShell } from '../components/AppShell';
 import { QueryState } from '../components/QueryState';
 import { errorMessage, useInvalidateOps } from '../lib/api';
+import { validateTicket } from '../lib/forms';
+import { ORDER_ACTION_UI, ticketActionButtons, ticketIsClosed } from '../lib/order-actions';
 
 const STATUS_FILTERS = [
   { value: 'all', label: 'All tickets' },
   ...Object.values(OrderStatus).map((status) => ({ value: status, label: statusTone[status].label })),
 ];
-
-const ACTION_LABEL: Record<OrderActionValue, string> = {
-  accept: 'Accept',
-  prepare: 'Start prep',
-  ready: 'Mark ready',
-  complete: 'Complete',
-  cancel: 'Cancel',
-};
 
 export default function OrdersPage() {
   const toast = useToast();
@@ -76,20 +69,14 @@ export default function OrdersPage() {
   }
 
   async function submitOrder() {
-    const selectedItems = Object.entries(quantities)
-      .filter(([, quantity]) => quantity > 0)
-      .map(([menuItemId, quantity]) => ({ menuItemId, quantity }));
-    if (!customerId) {
-      toast.push('Pick a guest', 'warning');
-      return;
-    }
-    if (selectedItems.length === 0) {
-      toast.push('Add at least one item', 'warning');
+    const parsed = validateTicket({ customerId, quantities });
+    if (!parsed.ok) {
+      toast.push(parsed.message, 'warning');
       return;
     }
     try {
       const result = await createOrder.mutateAsync({
-        data: { customerId, notes: notes.trim() || undefined, items: selectedItems },
+        data: { customerId: parsed.value.customerId, notes: notes.trim() || undefined, items: parsed.value.items },
       });
       if (result.status !== 201) {
         toast.push(errorMessage(result.data), 'error');
@@ -106,13 +93,13 @@ export default function OrdersPage() {
     }
   }
 
-  async function runAction(action: OrderActionValue) {
+  async function runAction(action: OrderAction) {
     if (!selectedId) return;
     try {
       await applyAction.mutateAsync({ id: selectedId, data: { action } });
       await invalidate.orders();
       await detailQuery.refetch();
-      toast.push(`${ACTION_LABEL[action]} sent`, action === 'cancel' ? 'warning' : 'success');
+      toast.push(`${ORDER_ACTION_UI[action].label} sent`, action === 'cancel' ? 'warning' : 'success');
     } catch (error) {
       toast.push(errorMessage(error), 'error');
     }
@@ -170,18 +157,18 @@ export default function OrdersPage() {
               </Typography>
               <Typography variant="heading">{formatCurrency(detail.totalCents)}</Typography>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space[2] }}>
-                {detail.availableActions.map((action) => (
+                {ticketActionButtons(detail.availableActions).map((button) => (
                   <Button
-                    key={action}
+                    key={button.action}
                     size="sm"
-                    variant={action === OrderAction.cancel ? 'danger' : 'primary'}
-                    label={ACTION_LABEL[action]}
+                    variant={button.variant}
+                    label={button.label}
                     loading={applyAction.isPending}
-                    onPress={() => void runAction(action)}
+                    onPress={() => void runAction(button.action)}
                   />
                 ))}
               </View>
-              {detail.availableActions.length === 0 ? (
+              {ticketIsClosed(detail.availableActions) ? (
                 <Typography variant="caption">This ticket is closed — no further actions.</Typography>
               ) : null}
             </View>

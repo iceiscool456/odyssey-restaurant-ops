@@ -1,33 +1,9 @@
 import type { ViewStyle } from 'react-native';
-import { color } from './color';
 
+/** Web `boxShadow` — RN `shadow*` props are deprecated on Expo web. */
 export const shadow = {
-  none: {
-    shadowColor: color.transparent,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
-  },
-  sm: {
-    shadowColor: color.ink,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  md: {
-    shadowColor: color.ink,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 4,
-  },
-  lg: {
-    shadowColor: color.ink,
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.16,
-    shadowRadius: 32,
-    elevation: 8,
-  },
+  none: { boxShadow: 'none' },
+  sm: { boxShadow: '0 1px 3px rgba(27, 20, 16, 0.08)' },
+  md: { boxShadow: '0 6px 16px rgba(27, 20, 16, 0.10)' },
+  lg: { boxShadow: '0 16px 32px rgba(27, 20, 16, 0.16)' },
 } satisfies Record<string, ViewStyle>;

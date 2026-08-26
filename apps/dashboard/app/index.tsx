@@ -1,6 +1,7 @@
+import { useRouter } from 'expo-router';
 import { ScrollView, View } from 'react-native';
-import { useGetHomeSummary, useGetSettings, useListOrders } from '@odyssey/api-client';
-import { Badge, Card, Typography, color, formatCurrency, space } from '@odyssey/shared';
+import { useGetHomeSummary, useGetSettings, useListCustomers, useListOrders } from '@odyssey/api-client';
+import { Badge, Card, ListRow, Typography, color, formatCurrency, space } from '@odyssey/shared';
 import { AppShell } from '../components/AppShell';
 import { QueryState } from '../components/QueryState';
 
@@ -14,13 +15,17 @@ function Kpi({ label, value }: { label: string; value: string }) {
 }
 
 export default function Home() {
+  const router = useRouter();
   const summaryQuery = useGetHomeSummary();
   const settingsQuery = useGetSettings();
+  const customersQuery = useListCustomers();
   const pendingQuery = useListOrders({ status: 'pending' });
 
   const summary = summaryQuery.data?.status === 200 ? summaryQuery.data.data : undefined;
   const settings = settingsQuery.data?.status === 200 ? settingsQuery.data.data : undefined;
   const pending = pendingQuery.data?.status === 200 ? pendingQuery.data.data : [];
+  const customers = customersQuery.data?.status === 200 ? customersQuery.data.data : [];
+  const customersById = new Map(customers.map((customer) => [customer.id, customer]));
 
   return (
     <AppShell title="Tonight’s board">
@@ -58,20 +63,34 @@ export default function Home() {
                   )}
                 </View>
               </Card>
-              <Card>
-                <View style={{ gap: space[3] }}>
+              <Card padded={false}>
+                <View style={{ padding: space[5], paddingBottom: space[3] }}>
                   <Typography variant="heading">Pending well</Typography>
-                  {pendingQuery.isLoading ? <Typography variant="caption" color={color.inkMuted}>Loading…</Typography> : null}
-                  {pending.length === 0 ? (
-                    <Typography variant="caption">No tickets waiting on accept.</Typography>
-                  ) : (
-                    pending.map((order) => (
-                      <Typography key={order.id} variant="body">
-                        {formatCurrency(order.totalCents)} · {new Date(order.createdAt).toLocaleTimeString()}
-                      </Typography>
-                    ))
-                  )}
                 </View>
+                {pendingQuery.isLoading ? (
+                  <View style={{ paddingHorizontal: space[5], paddingBottom: space[5] }}>
+                    <Typography variant="caption" color={color.inkMuted}>
+                      Loading…
+                    </Typography>
+                  </View>
+                ) : null}
+                {!pendingQuery.isLoading && pending.length === 0 ? (
+                  <View style={{ paddingHorizontal: space[5], paddingBottom: space[5] }}>
+                    <Typography variant="caption">No tickets waiting on accept.</Typography>
+                  </View>
+                ) : (
+                  pending.map((order) => {
+                    const guest = customersById.get(order.customerId);
+                    return (
+                      <ListRow
+                        key={order.id}
+                        title={guest?.name ?? 'Guest'}
+                        meta={`${formatCurrency(order.totalCents)} · ${new Date(order.createdAt).toLocaleTimeString()}`}
+                        onPress={() => router.push('/orders')}
+                      />
+                    );
+                  })
+                )}
               </Card>
             </>
           ) : null}

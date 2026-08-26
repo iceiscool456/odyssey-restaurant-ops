@@ -17,6 +17,7 @@ import {
 import { AppShell } from '../components/AppShell';
 import { QueryState } from '../components/QueryState';
 import { errorMessage, useInvalidateOps } from '../lib/api';
+import { validateGuest } from '../lib/forms';
 
 export default function CrmPage() {
   const toast = useToast();
@@ -34,13 +35,14 @@ export default function CrmPage() {
   const detail = detailQuery.data?.status === 200 ? detailQuery.data.data : undefined;
 
   async function saveGuest() {
-    if (!name.trim() || !email.trim()) {
-      toast.push('Name and email are required', 'warning');
+    const parsed = validateGuest({ name, email, phone });
+    if (!parsed.ok) {
+      toast.push(parsed.message, 'warning');
       return;
     }
     try {
       const result = await createCustomer.mutateAsync({
-        data: { name: name.trim(), email: email.trim(), phone: phone.trim() || null },
+        data: parsed.value,
       });
       if (result.status !== 201) {
         toast.push(errorMessage(result.data), 'error');

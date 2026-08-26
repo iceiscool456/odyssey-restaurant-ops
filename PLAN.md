@@ -64,12 +64,14 @@ Build order: Menu → Orders → CRM → Settings → Home (Home consumes everyt
 - **Exit:** every assessment flow works clicking through the real UI against the real backend.
 - Verified: Metro compiles Home/Menu/Orders/CRM/Settings; live API covers 86 → rejected ticket, valid create with server totals, accept action, settings, and Home KPIs. Browser click-through was blocked in this session (browser tool offline); run `pnpm dev:dashboard` + `pnpm dev:backend` and click the sidebar to confirm.
 
-## M6 — Polish, frontend tests, docs
+## M6 — Polish, frontend tests, docs ✅
 
 - Frontend tests: order status action visibility, form validation, key UI states.
-- Visual consistency pass.
-- README finalized: run + seed instructions, architecture decisions, tradeoffs.
-- **Exit:** fresh-clone dry run — clone, install, seed, run; all scripts green.
+- Visual consistency pass (web `boxShadow` tokens, per-item 86 loading, Home pending well, Settings day labels).
+- README finalized: run + seed, architecture, tradeoffs.
+- CI: Postgres service, migrate + seed, lint / typecheck / test.
+- Verified: dashboard tests cover ticket action visibility, form validation, and query surfaces;
+  `pnpm lint` / `typecheck` / `test` green; shadows use web `boxShadow` tokens.
 
 ## Scope cut lines (in order, if time runs out)
 

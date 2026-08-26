@@ -20,13 +20,13 @@ import {
   centsToDollarInput,
   color,
   formatCurrency,
-  parseDollarsToCents,
   space,
   useToast,
 } from '@odyssey/shared';
 import { AppShell } from '../components/AppShell';
 import { QueryState } from '../components/QueryState';
 import { errorMessage, useInvalidateOps } from '../lib/api';
+import { validateCategoryName, validateMenuItem } from '../lib/forms';
 
 type ItemDraft = {
   id?: string;
@@ -58,6 +58,7 @@ export default function MenuPage() {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [categoryName, setCategoryName] = useState('');
   const [draft, setDraft] = useState<ItemDraft | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const grouped = useMemo(
     () =>
@@ -75,11 +76,14 @@ export default function MenuPage() {
   }
 
   async function saveCategory() {
-    const name = categoryName.trim();
-    if (!name) return;
+    const parsed = validateCategoryName(categoryName);
+    if (!parsed.ok) {
+      toast.push(parsed.message, 'warning');
+      return;
+    }
     try {
       await createCategory.mutateAsync({
-        data: { name, sortOrder: categories.length },
+        data: { name: parsed.value, sortOrder: categories.length },
       });
       await invalidate.menu();
       toast.push('Category added', 'success');
@@ -92,14 +96,9 @@ export default function MenuPage() {
 
   async function saveItem() {
     if (!draft) return;
-    const name = draft.name.trim();
-    const priceCents = parseDollarsToCents(draft.price);
-    if (!name) {
-      toast.push('Name is required', 'warning');
-      return;
-    }
-    if (priceCents === null) {
-      toast.push('Price must be a dollars amount like 32 or 32.50', 'warning');
+    const parsed = validateMenuItem(draft);
+    if (!parsed.ok) {
+      toast.push(parsed.message, 'warning');
       return;
     }
     try {
@@ -107,9 +106,9 @@ export default function MenuPage() {
         await updateItem.mutateAsync({
           id: draft.id,
           data: {
-            name,
-            categoryId: draft.categoryId,
-            priceCents,
+            name: parsed.value.name,
+            categoryId: parsed.value.categoryId,
+            priceCents: parsed.value.priceCents,
             description: draft.description.trim() || null,
           },
         });
@@ -117,9 +116,9 @@ export default function MenuPage() {
       } else {
         await createItem.mutateAsync({
           data: {
-            name,
-            categoryId: draft.categoryId,
-            priceCents,
+            name: parsed.value.name,
+            categoryId: parsed.value.categoryId,
+            priceCents: parsed.value.priceCents,
             description: draft.description.trim() || null,
             isAvailable: true,
           },
@@ -134,6 +133,7 @@ export default function MenuPage() {
   }
 
   async function toggleAvailability(item: MenuItem) {
+    setTogglingId(item.id);
     try {
       await updateItem.mutateAsync({
         id: item.id,
@@ -143,6 +143,8 @@ export default function MenuPage() {
       toast.push(item.isAvailable ? `${item.name} is 86’d` : `${item.name} is back`, item.isAvailable ? 'warning' : 'success');
     } catch (error) {
       toast.push(errorMessage(error), 'error');
+    } finally {
+      setTogglingId(null);
     }
   }
 
@@ -197,7 +199,7 @@ export default function MenuPage() {
                           size="sm"
                           variant={item.isAvailable ? 'secondary' : 'primary'}
                           label={item.isAvailable ? '86' : 'Restore'}
-                          loading={updateItem.isPending}
+                          loading={togglingId === item.id}
                           onPress={() => toggleAvailability(item)}
                         />
                         <Button

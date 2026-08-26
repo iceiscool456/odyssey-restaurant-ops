@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Feedback, SkeletonBlock } from '@odyssey/shared';
-import { errorMessage } from '../lib/api';
+import { errorMessage } from '../lib/errors';
+import { querySurface } from '../lib/ui-state';
 
 export function QueryState({
   isLoading,
@@ -17,9 +18,10 @@ export function QueryState({
   emptyBody?: string;
   children: ReactNode;
 }) {
-  if (isLoading) return <SkeletonBlock />;
-  if (error) return <Feedback tone="error" title="Could not load" body={errorMessage(error)} />;
-  if (isEmpty) {
+  const surface = querySurface({ isLoading, error, isEmpty });
+  if (surface === 'loading') return <SkeletonBlock />;
+  if (surface === 'error') return <Feedback tone="error" title="Could not load" body={errorMessage(error)} />;
+  if (surface === 'empty') {
     return (
       <Feedback
         tone="empty"
