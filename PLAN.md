@@ -40,13 +40,16 @@ Milestone-driven roadmap for the Odyssey assignment. One branch per milestone, m
   totals verified server-side, illegal transition rejected.
 - Verified: 13 backend tests covering the money math, status machine, and live order API against Postgres.
 
-## M4 — Design system + UI library route
+## M4 — Design system + UI library route ✅
 
 - Centralized tokens in `packages/shared`: colors, typography, spacing, radius/border/shadow/elevation, semantic states.
 - Primitives: Button, Input/form controls, Select, Modal/Drawer, Card, Table/List, Badge/StatusIndicator,
   navigation, Skeleton, Toast — each with hover/focus/active/disabled states.
 - `/ui-library` route showcasing tokens, typography, spacing, surfaces, and every component state.
 - **Exit:** UI library renders everything on web; no hardcoded colors/spacing outside token files.
+- Verified in the browser: `/ui-library` shows the token swatches, type scale, buttons (including disabled/loading),
+  inputs, select menu, cards, table/empty table, badges, feedback, skeleton, modal, drawer, and toast.
+  Home still uses the tokenized shell; menu load error state renders when the API is down.
 
 ## M5 — Dashboard pages wired end-to-end
 

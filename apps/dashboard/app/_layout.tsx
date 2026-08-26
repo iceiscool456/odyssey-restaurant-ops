@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ToastProvider, color } from '@odyssey/shared';
 import { Stack } from 'expo-router';
 import { useState } from 'react';
+import { View } from 'react-native';
 
 export default function RootLayout() {
   const [queryClient] = useState(
@@ -17,7 +19,11 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack screenOptions={{ headerShown: false }} />
+      <ToastProvider>
+        <View style={{ flex: 1, backgroundColor: color.canvas }}>
+          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.canvas } }} />
+        </View>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }
