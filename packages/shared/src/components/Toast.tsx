@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import { fontFamily, fontSize, layout, radius, shadow, space } from '../tokens';
+import { elevation, fontFamily, fontSize, layout, radius, space } from '../tokens';
 import { statusTone, type StatusTone } from '../tokens/status';
 import { Interactive } from './Interactive';
 
@@ -46,7 +46,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 borderRadius: radius.md,
                 paddingVertical: space[2],
                 paddingHorizontal: space[3],
-                ...shadow.md,
+                ...elevation.md,
                 minWidth: layout.toastMin,
               }}
             >

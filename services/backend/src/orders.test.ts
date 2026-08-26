@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { resolveDatabaseUrl } from '../scripts/env';
 import app from './index';
 
@@ -23,7 +23,33 @@ async function post(path: string, body: unknown) {
   return { status: response.status, body: (await response.json()) as Record<string, unknown> };
 }
 
+async function patchSettings(body: Record<string, unknown>) {
+  const response = await app.request(
+    '/settings',
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+    env,
+  );
+  return { status: response.status, body: (await response.json()) as Record<string, unknown> };
+}
+
 describe('order API', () => {
+  beforeEach(async () => {
+    await patchSettings({ serviceAvailable: true, autoAccept: false });
+    await app.request(
+      `/menu/items/${seed.calamari}`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isAvailable: true }),
+      },
+      env,
+    );
+  });
+
   it('creates an order and calculates totals server-side', async () => {
     const result = await post('/orders', {
       customerId: seed.ada,
@@ -71,5 +97,36 @@ describe('order API', () => {
     const result = await post(`/orders/${id}/actions`, { action: 'complete' });
     expect(result.status).toBe(409);
     expect(String(result.body.error)).toMatch(/cannot complete/i);
+  });
+
+  it('refuses new tickets while service is closed', async () => {
+    const closed = await patchSettings({ serviceAvailable: false });
+    expect(closed.status).toBe(200);
+    try {
+      const result = await post('/orders', {
+        customerId: seed.ada,
+        items: [{ menuItemId: seed.calamari, quantity: 1 }],
+      });
+      expect(result.status).toBe(409);
+      expect(String(result.body.error)).toMatch(/not currently available/i);
+    } finally {
+      await patchSettings({ serviceAvailable: true });
+    }
+  });
+
+  it('auto-accepts new tickets when the setting is on', async () => {
+    const enabled = await patchSettings({ autoAccept: true });
+    expect(enabled.status).toBe(200);
+    try {
+      const result = await post('/orders', {
+        customerId: seed.ada,
+        items: [{ menuItemId: seed.calamari, quantity: 1 }],
+      });
+      expect(result.status).toBe(201);
+      expect(result.body.status).toBe('accepted');
+      expect(result.body.availableActions).toEqual(['prepare', 'cancel']);
+    } finally {
+      await patchSettings({ autoAccept: false });
+    }
   });
 });

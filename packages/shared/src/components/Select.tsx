@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Text, View } from 'react-native';
-import { border, color, focusRing, fontFamily, fontSize, layout, radius, shadow, space } from '../tokens';
+import { border, color, elevation, focusRing, fontFamily, fontSize, layout, radius, space } from '../tokens';
 import { Interactive } from './Interactive';
 import { Typography } from './Typography';
 
@@ -54,7 +54,7 @@ export function Select({ label, value, options, placeholder = 'Select…', disab
             borderWidth: border.hairline,
             borderColor: color.line,
             borderRadius: radius.md,
-            ...shadow.md,
+            ...elevation.md,
             overflow: 'hidden',
           }}
         >

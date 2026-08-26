@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Modal as RnModal, Pressable, ScrollView, View } from 'react-native';
-import { color, layout, radius, shadow, space } from '../tokens';
+import { color, elevation, layout, radius, space } from '../tokens';
 import { Button } from './Button';
 import { Typography } from './Typography';
 
@@ -35,7 +35,7 @@ export function Modal({
             backgroundColor: color.surface,
             borderRadius: radius.lg,
             padding: space[5],
-            ...shadow.lg,
+            ...elevation.lg,
           }}
         >
           <View style={{ gap: space[4] }}>
@@ -73,7 +73,7 @@ export function Drawer({
             height: '100%',
             backgroundColor: color.surface,
             padding: space[5],
-            ...shadow.lg,
+            ...elevation.lg,
             gap: space[4],
           }}
         >

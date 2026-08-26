@@ -1,5 +1,5 @@
 import { View, type ViewProps } from 'react-native';
-import { border, color, radius, shadow, space } from '../tokens';
+import { border, color, elevation, radius, space } from '../tokens';
 
 type Tone = 'default' | 'muted' | 'raised';
 
@@ -21,7 +21,7 @@ export function Card({
           borderColor: color.line,
           borderRadius: radius.lg,
           padding: padded ? space[5] : 0,
-          ...(tone === 'raised' ? shadow.md : shadow.sm),
+          ...(tone === 'raised' ? elevation.md : elevation.sm),
         },
         style,
       ]}

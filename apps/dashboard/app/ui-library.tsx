@@ -20,9 +20,9 @@ import {
   color,
   fontSize,
   formatCurrency,
+  elevation,
   layout,
   radius,
-  shadow,
   space,
   statusTone,
   useToast,
@@ -108,7 +108,8 @@ export default function UiLibrary() {
             ))}
           </View>
           <Typography variant="caption">
-            Sidebar {layout.sidebar} · content max {layout.contentMax} · gutter {layout.gutter}
+            Sidebar {layout.sidebar} · content max {layout.contentMax} · gutter {layout.gutter} · {layout.columns}-column
+            grid · grid gutter {layout.gridGutter}
           </Typography>
         </Section>
 
@@ -126,7 +127,7 @@ export default function UiLibrary() {
                   borderColor: color.line,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  ...shadow[level],
+                  ...elevation[level],
                 }}
               >
                 <Typography variant="caption">{level}</Typography>

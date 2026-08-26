@@ -25,4 +25,5 @@ export const layout = {
   toastMin: 240,
   tableMin: 640,
   selectMenuOffset: 64,
+  columns: 12,
 } as const;

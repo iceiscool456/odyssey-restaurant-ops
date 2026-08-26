@@ -1,4 +1,6 @@
-export type QuerySurface = 'loading' | 'error' | 'empty' | 'ready';
+import type { QuerySurface } from '@odyssey/types';
+
+export type { QuerySurface };
 
 export function querySurface(input: { isLoading: boolean; error: unknown; isEmpty?: boolean }): QuerySurface {
   if (input.isLoading) return 'loading';
