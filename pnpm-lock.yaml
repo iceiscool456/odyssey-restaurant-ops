@@ -114,6 +114,10 @@ importers:
         version: 5.9.3
 
   packages/shared:
+    dependencies:
+      react-dom:
+        specifier: '*'
+        version: 19.2.3(react@19.2.3)
     devDependencies:
       '@types/react':
         specifier: ~19.2.0

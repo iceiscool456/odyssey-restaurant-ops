@@ -5,4 +5,5 @@ export { focusRing } from './focus';
 export { radius, border } from './radius';
 export { shadow } from './shadow';
 export { elevation } from './elevation';
+export { zIndex } from './z-index';
 export { statusTone, type StatusTone } from './status';
