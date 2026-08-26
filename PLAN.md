@@ -28,7 +28,7 @@ Milestone-driven roadmap for the Odyssey assignment. One branch per milestone, m
 - **Exit:** `pnpm gen:contract` runs the full chain; menu items round-trip DB → API → generated hook compiling in the dashboard.
 - Verified: migrate + seed against Postgres; `/menu/items` and `/menu/categories` serve seeded data; generated `useListMenuItems` types the dashboard; CORS works from Expo web; per-request DB client required by Workers I/O isolation.
 
-## M3 — Backend domain logic + tests
+## M3 — Backend domain logic + tests ✅
 
 - Endpoints: menu CRUD, customers, order create/list/filter/detail, settings read/update, Home KPIs.
 - Deliberate backend behavior:
@@ -38,6 +38,7 @@ Milestone-driven roadmap for the Odyssey assignment. One branch per milestone, m
 - Realistic seed data.
 - **Exit:** backend tests green — valid order creation, bad payload rejected, unavailable item rejected,
   totals verified server-side, illegal transition rejected.
+- Verified: 13 backend tests covering the money math, status machine, and live order API against Postgres.
 
 ## M4 — Design system + UI library route
 

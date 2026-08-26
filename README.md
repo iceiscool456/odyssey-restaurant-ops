@@ -57,11 +57,12 @@ Copy `services/backend/.dev.vars.example` to `services/backend/.dev.vars` if it 
 
 - Persisted data truth starts in Drizzle. HTTP schemas are `drizzle-zod` bound to `@hono/zod-openapi`'s Zod instance so OpenAPI names attach without rewriting tables by hand.
 - Money is integer cents end-to-end.
-- Order status is a single Postgres enum. Status updates will be action endpoints in M3, not a writable field.
+- Order status is a single Postgres enum. Status changes go through `POST /orders/{id}/actions` (`accept`, `prepare`, `ready`, `complete`, `cancel`). Clients cannot patch `status`.
+- Order totals are calculated server-side (8.5% tax as basis points). Client-sent totals are ignored.
 - Postgres clients are created per request. Cloudflare Workers forbid reusing sockets/streams across request handlers.
 
 ## Tradeoffs and incomplete areas
 
 - TypeScript is pinned to 5.9 (Expo SDK 57 suggests 6.0) because the rest of the toolchain is more stable on 5.x.
-- Menu CRUD besides list/get, order APIs, CRM, and settings endpoints land in M3.
+- Dashboard pages beyond the contract smoke screen land in M4–M5.
 - Native app readiness is not a goal for this assignment.

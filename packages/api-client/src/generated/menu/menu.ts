@@ -5,26 +5,35 @@
  * OpenAPI spec version: 0.1.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  MutationFunction,
   QueryClient,
   QueryFunction,
   QueryKey,
   UndefinedInitialDataOptions,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
+  CreateMenuCategoryBody,
+  CreateMenuItemBody,
   ErrorResponse,
   ListMenuItemsParams,
+  MenuCategory,
   MenuCategoryList,
   MenuItem,
-  MenuItemList
+  MenuItemList,
+  UpdateMenuCategoryBody,
+  UpdateMenuItemBody
 } from '../models';
 
 import { customFetch } from '../../mutator/custom-fetch';
@@ -155,7 +164,97 @@ export function useListMenuCategories<TData = Awaited<ReturnType<typeof listMenu
 
 
 
-export type listMenuItemsResponse200 = {
+export type createMenuCategoryResponse201 = {
+  data: MenuCategory
+  status: 201
+}
+
+export type createMenuCategoryResponse400 = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type createMenuCategoryResponseSuccess = (createMenuCategoryResponse201) & {
+  headers: Headers;
+};
+export type createMenuCategoryResponseError = (createMenuCategoryResponse400) & {
+  headers: Headers;
+};
+
+export type createMenuCategoryResponse = (createMenuCategoryResponseSuccess | createMenuCategoryResponseError)
+
+export const getCreateMenuCategoryUrl = () => {
+
+
+
+
+  return `/menu/categories`
+}
+
+export const createMenuCategory = async (createMenuCategoryBody?: CreateMenuCategoryBody, options?: Parameters<typeof customFetch>[1]): Promise<createMenuCategoryResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<createMenuCategoryResponse>(getCreateMenuCategoryUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(createMenuCategoryBody)
+  }
+);}
+
+
+
+
+
+export const getCreateMenuCategoryMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMenuCategory>>, TError,CreateMenuCategoryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMenuCategory>>, TError,CreateMenuCategoryMutationVariables, TContext> => {
+
+const mutationKey = ['createMenuCategory'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMenuCategory>>, CreateMenuCategoryMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMenuCategory(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMenuCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof createMenuCategory>>>
+    export type CreateMenuCategoryMutationBody = CreateMenuCategoryBody | undefined
+    export type CreateMenuCategoryMutationError = ErrorResponse
+    export type CreateMenuCategoryMutationVariables = {data?: CreateMenuCategoryBody}
+
+    export const useCreateMenuCategory = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMenuCategory>>, TError,CreateMenuCategoryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createMenuCategory>>,
+        TError,
+        CreateMenuCategoryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateMenuCategoryMutationOptions(options), queryClient);
+    }
+    export type listMenuItemsResponse200 = {
   data: MenuItemList
   status: 200
 }
@@ -275,7 +374,97 @@ export function useListMenuItems<TData = Awaited<ReturnType<typeof listMenuItems
 
 
 
-export type getMenuItemResponse200 = {
+export type createMenuItemResponse201 = {
+  data: MenuItem
+  status: 201
+}
+
+export type createMenuItemResponse400 = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type createMenuItemResponseSuccess = (createMenuItemResponse201) & {
+  headers: Headers;
+};
+export type createMenuItemResponseError = (createMenuItemResponse400) & {
+  headers: Headers;
+};
+
+export type createMenuItemResponse = (createMenuItemResponseSuccess | createMenuItemResponseError)
+
+export const getCreateMenuItemUrl = () => {
+
+
+
+
+  return `/menu/items`
+}
+
+export const createMenuItem = async (createMenuItemBody?: CreateMenuItemBody, options?: Parameters<typeof customFetch>[1]): Promise<createMenuItemResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<createMenuItemResponse>(getCreateMenuItemUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(createMenuItemBody)
+  }
+);}
+
+
+
+
+
+export const getCreateMenuItemMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMenuItem>>, TError,CreateMenuItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createMenuItem>>, TError,CreateMenuItemMutationVariables, TContext> => {
+
+const mutationKey = ['createMenuItem'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createMenuItem>>, CreateMenuItemMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createMenuItem(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateMenuItemMutationResult = NonNullable<Awaited<ReturnType<typeof createMenuItem>>>
+    export type CreateMenuItemMutationBody = CreateMenuItemBody | undefined
+    export type CreateMenuItemMutationError = ErrorResponse
+    export type CreateMenuItemMutationVariables = {data?: CreateMenuItemBody}
+
+    export const useCreateMenuItem = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createMenuItem>>, TError,CreateMenuItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createMenuItem>>,
+        TError,
+        CreateMenuItemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateMenuItemMutationOptions(options), queryClient);
+    }
+    export type getMenuItemResponse200 = {
   data: MenuItem
   status: 200
 }
@@ -388,3 +577,195 @@ export function useGetMenuItem<TData = Awaited<ReturnType<typeof getMenuItem>>, 
 
 
 
+export type updateMenuItemResponse200 = {
+  data: MenuItem
+  status: 200
+}
+
+export type updateMenuItemResponse400 = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type updateMenuItemResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type updateMenuItemResponseSuccess = (updateMenuItemResponse200) & {
+  headers: Headers;
+};
+export type updateMenuItemResponseError = (updateMenuItemResponse400 | updateMenuItemResponse404) & {
+  headers: Headers;
+};
+
+export type updateMenuItemResponse = (updateMenuItemResponseSuccess | updateMenuItemResponseError)
+
+export const getUpdateMenuItemUrl = (id: string,) => {
+
+
+
+
+  return `/menu/items/${id}`
+}
+
+export const updateMenuItem = async (id: string,
+    updateMenuItemBody?: UpdateMenuItemBody, options?: Parameters<typeof customFetch>[1]): Promise<updateMenuItemResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<updateMenuItemResponse>(getUpdateMenuItemUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(updateMenuItemBody)
+  }
+);}
+
+
+
+
+
+export const getUpdateMenuItemMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMenuItem>>, TError,UpdateMenuItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMenuItem>>, TError,UpdateMenuItemMutationVariables, TContext> => {
+
+const mutationKey = ['updateMenuItem'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMenuItem>>, UpdateMenuItemMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateMenuItem(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMenuItemMutationResult = NonNullable<Awaited<ReturnType<typeof updateMenuItem>>>
+    export type UpdateMenuItemMutationBody = UpdateMenuItemBody | undefined
+    export type UpdateMenuItemMutationError = ErrorResponse
+    export type UpdateMenuItemMutationVariables = {id: string;data?: UpdateMenuItemBody}
+
+    export const useUpdateMenuItem = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMenuItem>>, TError,UpdateMenuItemMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateMenuItem>>,
+        TError,
+        UpdateMenuItemMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateMenuItemMutationOptions(options), queryClient);
+    }
+    export type updateMenuCategoryResponse200 = {
+  data: MenuCategory
+  status: 200
+}
+
+export type updateMenuCategoryResponse400 = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type updateMenuCategoryResponse404 = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type updateMenuCategoryResponseSuccess = (updateMenuCategoryResponse200) & {
+  headers: Headers;
+};
+export type updateMenuCategoryResponseError = (updateMenuCategoryResponse400 | updateMenuCategoryResponse404) & {
+  headers: Headers;
+};
+
+export type updateMenuCategoryResponse = (updateMenuCategoryResponseSuccess | updateMenuCategoryResponseError)
+
+export const getUpdateMenuCategoryUrl = (id: string,) => {
+
+
+
+
+  return `/menu/categories/${id}`
+}
+
+export const updateMenuCategory = async (id: string,
+    updateMenuCategoryBody?: UpdateMenuCategoryBody, options?: Parameters<typeof customFetch>[1]): Promise<updateMenuCategoryResponse> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Array.isArray(h)) return Object.fromEntries(h);
+    return h;
+  };
+return customFetch<updateMenuCategoryResponse>(getUpdateMenuCategoryUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(updateMenuCategoryBody)
+  }
+);}
+
+
+
+
+
+export const getUpdateMenuCategoryMutationOptions = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMenuCategory>>, TError,UpdateMenuCategoryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateMenuCategory>>, TError,UpdateMenuCategoryMutationVariables, TContext> => {
+
+const mutationKey = ['updateMenuCategory'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateMenuCategory>>, UpdateMenuCategoryMutationVariables> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateMenuCategory(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateMenuCategoryMutationResult = NonNullable<Awaited<ReturnType<typeof updateMenuCategory>>>
+    export type UpdateMenuCategoryMutationBody = UpdateMenuCategoryBody | undefined
+    export type UpdateMenuCategoryMutationError = ErrorResponse
+    export type UpdateMenuCategoryMutationVariables = {id: string;data?: UpdateMenuCategoryBody}
+
+    export const useUpdateMenuCategory = <TError = ErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateMenuCategory>>, TError,UpdateMenuCategoryMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateMenuCategory>>,
+        TError,
+        UpdateMenuCategoryMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateMenuCategoryMutationOptions(options), queryClient);
+    }

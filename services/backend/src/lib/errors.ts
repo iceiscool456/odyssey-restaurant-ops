@@ -1,4 +1,3 @@
-import { z } from '@hono/zod-openapi';
 import { ErrorSchema } from './zod-schemas';
 
 export const jsonError = {
@@ -19,4 +18,11 @@ export const notFoundError = {
   },
 } as const;
 
-export type ErrorBody = z.infer<typeof ErrorSchema>;
+export const conflictError = {
+  description: 'Request conflicts with current state',
+  content: {
+    'application/json': {
+      schema: ErrorSchema,
+    },
+  },
+} as const;
