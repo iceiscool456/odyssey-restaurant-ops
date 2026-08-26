@@ -19,13 +19,14 @@ Milestone-driven roadmap for the Odyssey assignment. One branch per milestone, m
 - Tradeoff: TypeScript pinned to 5.9 (Expo SDK 57 suggests 6.0) — the wider toolchain
   (typescript-eslint, Orval, drizzle-kit) is most stable on 5.x and typecheck passes cleanly.
 
-## M2 — Data truth & contract pipeline (highest risk — done early)
+## M2 — Data truth & contract pipeline (highest risk — done early) ✅
 
 - Drizzle schema: menu categories, menu items, customers, orders, order items, business settings.
   Order status as a single pgEnum — the one source of truth for the status type.
 - drizzle-zod → Hono `@hono/zod-openapi` → OpenAPI spec → Orval-generated client + React Query hooks in `packages/api-client`.
 - Local Postgres via Docker Compose; migration + seed scripts.
 - **Exit:** `pnpm gen:contract` runs the full chain; menu items round-trip DB → API → generated hook compiling in the dashboard.
+- Verified: migrate + seed against Postgres; `/menu/items` and `/menu/categories` serve seeded data; generated `useListMenuItems` types the dashboard; CORS works from Expo web; per-request DB client required by Workers I/O isolation.
 
 ## M3 — Backend domain logic + tests
 

@@ -5,5 +5,12 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './errorResponse';
 export * from './healthResponse';
 export * from './healthResponseStatus';
+export * from './listMenuItemsAvailable';
+export * from './listMenuItemsParams';
+export * from './menuCategory';
+export * from './menuCategoryList';
+export * from './menuItem';
+export * from './menuItemList';

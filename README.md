@@ -33,26 +33,35 @@ Persisted data truth starts in the Drizzle schema. API contracts are generated, 
 
 ## Getting started
 
-> Filled in as milestones land. See [PLAN.md](./PLAN.md) for the roadmap.
-
 ```bash
 pnpm install
-pnpm dev:backend    # Hono API via Wrangler
-pnpm dev:dashboard  # Expo web
+pnpm db:up          # starts Postgres via Docker Compose
+pnpm db:migrate
+pnpm db:seed
+pnpm dev:backend    # Hono API via Wrangler (http://localhost:8787)
+pnpm dev:dashboard  # Expo web (http://localhost:8081)
+```
+
+Other scripts:
+
+```bash
 pnpm gen:contract   # regenerate OpenAPI spec + Orval client
 pnpm lint
 pnpm typecheck
 pnpm test
 ```
 
-### Database
-
-Local PostgreSQL via Docker Compose. Migration and seed instructions will land with Milestone 2.
+Copy `services/backend/.dev.vars.example` to `services/backend/.dev.vars` if it is not already present. The default URL is `postgres://odyssey:odyssey@localhost:5432/odyssey`.
 
 ## Architecture decisions
 
-> Documented as they are made; summarized here at the end.
+- Persisted data truth starts in Drizzle. HTTP schemas are `drizzle-zod` bound to `@hono/zod-openapi`'s Zod instance so OpenAPI names attach without rewriting tables by hand.
+- Money is integer cents end-to-end.
+- Order status is a single Postgres enum. Status updates will be action endpoints in M3, not a writable field.
+- Postgres clients are created per request. Cloudflare Workers forbid reusing sockets/streams across request handlers.
 
 ## Tradeoffs and incomplete areas
 
-> Documented honestly at submission time.
+- TypeScript is pinned to 5.9 (Expo SDK 57 suggests 6.0) because the rest of the toolchain is more stable on 5.x.
+- Menu CRUD besides list/get, order APIs, CRM, and settings endpoints land in M3.
+- Native app readiness is not a goal for this assignment.
