@@ -38,7 +38,7 @@ Persisted data truth starts in the Drizzle schema. HTTP schemas are `drizzle-zod
 
 ## Getting started
 
-Requires Node 20+, pnpm 11, and Postgres 17. Docker Compose is the default path.
+Requires Node 22.13+ (pnpm 11), and Postgres 17. Docker Compose is the default path.
 
 ```bash
 pnpm install
