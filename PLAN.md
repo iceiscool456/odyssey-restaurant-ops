@@ -7,13 +7,17 @@ Milestone-driven roadmap for the Odyssey assignment. One branch per milestone, m
 - GitHub repo, README skeleton, this plan, `.gitignore`.
 - Working agreement: milestone branches (`m1-scaffold`, `m2-contract`, ...), green checks before merge.
 
-## M1 — Monorepo scaffold
+## M1 — Monorepo scaffold ✅
 
 - pnpm workspace + Turborepo with the required layout:
   `apps/dashboard` (Expo + RN Web), `services/backend` (Hono on Cloudflare Workers via Wrangler),
   `packages/shared`, `packages/types`, `packages/api-client`.
 - Root scripts wired: `dev:dashboard`, `dev:backend`, `gen:contract`, `lint`, `typecheck`, `test`.
 - **Exit:** both dev servers boot; a shared package import resolves across the workspace; `lint`/`typecheck` pass.
+- Verified: backend `/health` + `/openapi.json` serve; Expo web renders with `@odyssey/shared` import; `gen:contract`
+  produces a typed `useGetHealth` React Query hook end-to-end; lint/typecheck/test all green.
+- Tradeoff: TypeScript pinned to 5.9 (Expo SDK 57 suggests 6.0) — the wider toolchain
+  (typescript-eslint, Orval, drizzle-kit) is most stable on 5.x and typecheck passes cleanly.
 
 ## M2 — Data truth & contract pipeline (highest risk — done early)
 

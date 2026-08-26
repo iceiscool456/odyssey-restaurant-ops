@@ -14,10 +14,6 @@ export default defineConfig({
           path: './src/mutator/custom-fetch.ts',
           name: 'customFetch',
         },
-        query: {
-          useQuery: true,
-          useMutation: true,
-        },
       },
     },
   },

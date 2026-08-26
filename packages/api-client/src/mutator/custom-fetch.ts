@@ -14,6 +14,9 @@ export class ApiError extends Error {
  * Fetch wrapper used by all Orval-generated endpoints.
  * This is the single place where base URL, headers, and error
  * normalization are handled for the whole app.
+ *
+ * Returns the `{ data, status, headers }` shape that Orval-generated
+ * response types expect from a custom fetch mutator.
  */
 export async function customFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${BASE_URL}${url}`, {
@@ -31,5 +34,5 @@ export async function customFetch<T>(url: string, init?: RequestInit): Promise<T
     throw new ApiError(response.status, data);
   }
 
-  return data as T;
+  return { data, status: response.status, headers: response.headers } as T;
 }

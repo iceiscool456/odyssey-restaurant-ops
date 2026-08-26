@@ -2,3 +2,10 @@ packages:
   - apps/*
   - services/*
   - packages/*
+
+# Metro/Expo works most reliably in a monorepo with a hoisted node_modules layout.
+nodeLinker: hoisted
+
+allowBuilds:
+  esbuild: true
+  workerd: true
